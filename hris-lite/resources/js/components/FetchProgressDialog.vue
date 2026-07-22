@@ -41,9 +41,11 @@ const config = computed(() =>
         ? {
               icon: Users,
               title: 'Fetching biometric users',
-              runningDesc: 'Reading enrolled users from your terminals…',
-              metricLabel: 'Users fetched',
-              endpoint: (id: number) => `/biometric-users/devices/${id}/fetch`,
+              runningDesc:
+                  'Reading enrolled users and linking them to employees…',
+              metricLabel: 'Users found',
+              endpoint: (id: number) =>
+                  `/attendance-logs/devices/${id}/fetch-users`,
               countField: 'fetched' as const,
           }
         : {

@@ -26,7 +26,7 @@ class BranchContext
 
     private bool $privileged = false;
 
-    /** @var array<int>|null  null = unrestricted (all branches) */
+    /** @var array<int>|null null = unrestricted (all branches) */
     private ?array $accessibleIds = null;
 
     private ?int $activeId = null;

@@ -7,6 +7,7 @@ use App\Models\Branch;
 use App\Models\Department;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -95,7 +96,7 @@ class DepartmentController extends Controller
     }
 
     /**
-     * @return \Illuminate\Support\Collection<int, Branch>
+     * @return Collection<int, Branch>
      */
     private function branchOptions()
     {

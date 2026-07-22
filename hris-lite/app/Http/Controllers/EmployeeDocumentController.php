@@ -7,6 +7,7 @@ use App\Models\EmployeeDocument;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Inertia\Inertia;
 
 class EmployeeDocumentController extends Controller
 {
@@ -29,7 +30,7 @@ class EmployeeDocumentController extends Controller
             'file_name' => $request->file('file')->getClientOriginalName(),
         ]);
 
-        \Inertia\Inertia::flash('toast', ['type' => 'success', 'message' => __('Document uploaded.')]);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('Document uploaded.')]);
 
         return back();
     }
@@ -46,7 +47,7 @@ class EmployeeDocumentController extends Controller
 
         $document->delete();
 
-        \Inertia\Inertia::flash('toast', ['type' => 'success', 'message' => __('Document deleted.')]);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('Document deleted.')]);
 
         return back();
     }

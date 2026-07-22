@@ -50,26 +50,6 @@ export interface BiometricDevice {
     branch?: Branch | null;
 }
 
-/** A person enrolled on a biometric terminal (fetched via "Fetch users"). */
-export interface DeviceUser {
-    id: number;
-    branch_id: number;
-    biometric_device_id: number;
-    employee_id: number | null;
-    device_user_id: string;
-    name: string | null;
-    /** Device privilege level: 0 = user, 14 = admin. */
-    privilege: number | null;
-    card_no: string | null;
-    created_at: string;
-    updated_at: string;
-    employee?: Pick<
-        Employee,
-        'id' | 'first_name' | 'last_name' | 'full_name' | 'employee_no'
-    > | null;
-    device?: Pick<BiometricDevice, 'id' | 'name'> | null;
-}
-
 /** Shape bound to Inertia's useForm on the device create/edit pages. */
 export interface BiometricDeviceFormData {
     branch_id: number | null;

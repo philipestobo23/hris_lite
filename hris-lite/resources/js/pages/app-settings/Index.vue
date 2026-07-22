@@ -129,6 +129,15 @@ const textareaClass =
                             type="text"
                         />
 
+                        <!-- time -->
+                        <Input
+                            v-else-if="field.type === 'time'"
+                            :id="`${group.key}.${field.key}`"
+                            v-model="fieldModel(group.key)[field.key]"
+                            type="time"
+                            class="w-40"
+                        />
+
                         <!-- textarea -->
                         <textarea
                             v-else-if="field.type === 'textarea'"

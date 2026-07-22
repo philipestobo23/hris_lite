@@ -60,6 +60,47 @@ return [
             ],
         ],
 
+        'attendance' => [
+            'label' => 'Attendance',
+            'description' => 'Default shift window used to build daily time records.',
+            'fields' => [
+                'shift_start' => [
+                    'label' => 'Shift start',
+                    'type' => 'time',
+                    'cast' => 'string',
+                    'default' => '08:00',
+                    'help' => 'Lateness is measured against this plus the grace period.',
+                ],
+                'shift_end' => [
+                    'label' => 'Shift end',
+                    'type' => 'time',
+                    'cast' => 'string',
+                    'default' => '17:00',
+                    'help' => 'Work past this counts as overtime; leaving before it is undertime.',
+                ],
+                'break_minutes' => [
+                    'label' => 'Unpaid break (minutes)',
+                    'type' => 'number',
+                    'cast' => 'int',
+                    'default' => 60,
+                    'min' => 0,
+                    'help' => 'Deducted from days longer than five hours.',
+                ],
+                'night_diff_start' => [
+                    'label' => 'Night differential from',
+                    'type' => 'time',
+                    'cast' => 'string',
+                    'default' => '22:00',
+                ],
+                'night_diff_end' => [
+                    'label' => 'Night differential until',
+                    'type' => 'time',
+                    'cast' => 'string',
+                    'default' => '06:00',
+                ],
+            ],
+        ],
+
         'company' => [
             'label' => 'Company',
             'description' => 'Details shown on documents and payslips.',

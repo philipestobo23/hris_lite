@@ -6,6 +6,7 @@ use App\Enums\EmploymentStatus;
 use App\Enums\SalaryType;
 use App\Exports\EmployeesExport;
 use App\Http\Requests\EmployeeRequest;
+use App\Models\AttendanceLog;
 use App\Models\Branch;
 use App\Models\Department;
 use App\Models\Employee;
@@ -42,8 +43,105 @@ class EmployeeController extends Controller
         return Inertia::render('employees/Index', [
             'employees' => $employees,
             'filters' => [...$filters, 'sort' => $sort, 'direction' => $direction],
+            'biometricUsers' => $this->biometricUsers(),
+            'canLink' => $request->user()->can('employees.edit'),
             ...$this->filterOptions(),
         ]);
+    }
+
+    /**
+     * The distinct people enrolled on the biometric terminals, taken from the
+     * punches already collected. Offered as the dropdown when linking an
+     * employee to their device enrollment.
+     *
+     * @return list<array{device_user_id: string, device_user_name: string|null, punches: int, employee_id: int|null}>
+     */
+    private function biometricUsers(): array
+    {
+        $rows = AttendanceLog::query()
+            ->selectRaw('device_user_id')
+            ->selectRaw('MAX(device_user_name) as device_user_name')
+            ->selectRaw('COUNT(*) as punches')
+            ->selectRaw('MAX(employee_id) as employee_id')
+            ->groupBy('device_user_id')
+            ->orderBy('device_user_id')
+            ->get()
+            ->map(fn (AttendanceLog $row): array => [
+                'device_user_id' => (string) $row->device_user_id,
+                'device_user_name' => $row->device_user_name,
+                'punches' => (int) $row->getAttribute('punches'),
+                'employee_id' => $row->employee_id,
+            ])
+            ->all();
+
+        return array_values($rows);
+    }
+
+    /**
+     * Link an employee to a biometric enrollment number (or clear it), then
+     * attribute the punches already stored under that number to them.
+     */
+    public function linkBiometric(Request $request, Employee $employee): RedirectResponse
+    {
+        $this->authorize('update', $employee);
+
+        $validated = $request->validate([
+            'device_user_id' => ['nullable', 'string', 'max:50'],
+        ]);
+
+        $deviceUserId = $validated['device_user_id'] ?? null;
+
+        if (blank($deviceUserId)) {
+            $employee->update(['biometric_id' => null]);
+
+            Inertia::flash('toast', [
+                'type' => 'success',
+                'message' => __('Biometric link cleared for :name.', ['name' => $employee->full_name]),
+            ]);
+
+            return back();
+        }
+
+        // One enrollment number cannot belong to two people in the same branch,
+        // or punches would be attributed to whoever matched first.
+        $conflict = Employee::query()
+            ->where('branch_id', $employee->branch_id)
+            ->where('biometric_id', $deviceUserId)
+            ->whereKeyNot($employee->id)
+            ->first();
+
+        if ($conflict !== null) {
+            Inertia::flash('toast', [
+                'type' => 'error',
+                'message' => __('Biometric ID :id is already linked to :name.', [
+                    'id' => $deviceUserId,
+                    'name' => $conflict->full_name,
+                ]),
+            ]);
+
+            return back();
+        }
+
+        $employee->update(['biometric_id' => $deviceUserId]);
+
+        // Attribute the punches already stored under this enrollment number.
+        $backfilled = AttendanceLog::query()
+            ->withoutGlobalScope(BranchScope::class)
+            ->where('branch_id', $employee->branch_id)
+            ->where('device_user_id', $deviceUserId)
+            ->whereNull('employee_id')
+            ->update(['employee_id' => $employee->id]);
+
+        Inertia::flash('toast', [
+            'type' => 'success',
+            'message' => trans_choice(
+                'Linked :name to #:id. :count past punch updated.|Linked :name to #:id. :count past punches updated.',
+                $backfilled,
+                ['name' => $employee->full_name, 'id' => $deviceUserId, 'count' => $backfilled],
+            ),
+        ]);
+
+        return back();
     }
 
     public function show(Employee $employee): Response

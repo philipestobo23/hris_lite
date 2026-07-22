@@ -5,11 +5,11 @@ import {
     Briefcase,
     Building2,
     CalendarCheck,
+    CalendarDays,
     CalendarOff,
     ChartColumn,
     ChevronsUpDown,
     ClipboardList,
-    Contact,
     Fingerprint,
     Network,
     Settings,
@@ -21,7 +21,6 @@ import { computed } from 'vue';
 import AppLogo from '@/components/AppLogo.vue';
 import BranchSwitcher from '@/components/BranchSwitcher.vue';
 import Breadcrumbs from '@/components/Breadcrumbs.vue';
-import UserMenuContent from '@/components/UserMenuContent.vue';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
@@ -45,6 +44,7 @@ import {
     SidebarTrigger,
 } from '@/components/ui/sidebar';
 import { Toaster } from '@/components/ui/sonner';
+import UserMenuContent from '@/components/UserMenuContent.vue';
 import { useCan } from '@/composables/useCan';
 import { useCurrentUrl } from '@/composables/useCurrentUrl';
 import { useInitials } from '@/composables/useInitials';
@@ -71,11 +71,11 @@ const showAvatar = computed(() => !!user.value.avatar);
 // helpers that may not exist yet for every module.
 const mainNavItems: NavItem[] = [
     { title: 'Employees', href: '/employees', icon: Users },
-    { title: 'DTR', href: '/attendance', icon: CalendarCheck },
+    { title: 'DTR', href: '/dtr', icon: CalendarCheck },
     { title: 'Biometric Devices', href: '/biometric-devices', icon: Fingerprint },
-    { title: 'Biometric Users', href: '/biometric-users', icon: Contact },
     { title: 'Attendance Logs', href: '/attendance-logs', icon: ClipboardList },
-    { title: 'Leave', href: '/leave', icon: CalendarOff },
+    { title: 'Holidays', href: '/holidays', icon: CalendarDays },
+    { title: 'Leave', href: '/leaves', icon: CalendarOff },
     { title: 'Payroll', href: '/payroll', icon: Banknote },
     { title: 'Branches', href: '/branches', icon: Building2 },
     { title: 'Departments', href: '/departments', icon: Network },

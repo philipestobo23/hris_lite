@@ -40,6 +40,7 @@ function money(value: string | null): string {
     if (value === null || value === '') {
         return '—';
     }
+
     return Number(value).toLocaleString(undefined, {
         minimumFractionDigits: 2,
     });

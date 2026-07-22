@@ -6,6 +6,7 @@ export interface SettingFieldOption {
 export type SettingFieldType =
     | 'number'
     | 'text'
+    | 'time'
     | 'textarea'
     | 'select'
     | 'image';

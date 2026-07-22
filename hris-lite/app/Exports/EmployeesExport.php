@@ -13,9 +13,7 @@ class EmployeesExport implements FromQuery, WithHeadings, WithMapping
     /**
      * @param  array<string, mixed>  $filters
      */
-    public function __construct(private array $filters)
-    {
-    }
+    public function __construct(private array $filters) {}
 
     /**
      * @return Builder<Employee>

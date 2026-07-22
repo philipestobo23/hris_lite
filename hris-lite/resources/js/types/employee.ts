@@ -15,6 +15,15 @@ export interface SelectOption {
     label: string;
 }
 
+/** A person enrolled on a biometric terminal, derived from collected punches. */
+export interface BiometricUserOption {
+    device_user_id: string;
+    device_user_name: string | null;
+    punches: number;
+    /** Employee this enrollment already resolves to, if any. */
+    employee_id: number | null;
+}
+
 export interface EmployeeDocument {
     id: number;
     employee_id: number;

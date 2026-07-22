@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use App\Policies\RolePolicy;
+use App\Services\SettingsManager;
+use App\Support\BranchContext;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
@@ -18,8 +20,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->app->singleton(\App\Services\SettingsManager::class);
-        $this->app->singleton(\App\Support\BranchContext::class);
+        $this->app->singleton(SettingsManager::class);
+        $this->app->singleton(BranchContext::class);
     }
 
     /**

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Head, router } from '@inertiajs/vue3';
-import { LogIn, LogOut, RefreshCw } from '@lucide/vue';
+import { LogIn, LogOut, RefreshCw, Users } from '@lucide/vue';
 import { computed, ref } from 'vue';
 import DataTable from '@/components/DataTable.vue';
 import FetchProgressDialog from '@/components/FetchProgressDialog.vue';
@@ -38,6 +38,7 @@ defineOptions({
 const columns: DataTableColumn[] = [
     { key: 'employee', label: 'Employee' },
     { key: 'device_user_id', label: 'Device user', sortable: true },
+    { key: 'device_user_name', label: 'Biometric name' },
     { key: 'device', label: 'Terminal' },
     { key: 'punched_at', label: 'Date', sortable: true },
     { key: 'time', label: 'Time' },
@@ -68,22 +69,22 @@ const extraParams = computed(() => ({
 // device when no device filter is applied.
 const targetDevices = computed(() => {
     if (deviceFilter.value !== '') {
-        return props.devices.filter(
-            (d) => d.id === Number(deviceFilter.value),
-        );
+        return props.devices.filter((d) => d.id === Number(deviceFilter.value));
     }
 
     return props.devices.filter((d) => d.is_active);
 });
 
 const fetchOpen = ref(false);
+const fetchMode = ref<'users' | 'time'>('time');
 
-function openFetch(): void {
+function openFetch(mode: 'users' | 'time'): void {
+    fetchMode.value = mode;
     fetchOpen.value = true;
 }
 
 function onFetchFinished(): void {
-    // Pull the newly stored punches into the table.
+    // Pull the newly stored punches (and refreshed names) into the table.
     router.reload({ only: ['logs', 'filters'] });
 }
 
@@ -126,15 +127,21 @@ const verifyLabels: Record<string, string> = {
                 title="Attendance Logs"
                 description="Punches fetched from your biometric terminals."
             />
-            <Button @click="openFetch">
-                <RefreshCw class="size-4" />
-                Fetch time
-            </Button>
+            <div class="flex items-center gap-2">
+                <Button variant="outline" @click="openFetch('users')">
+                    <Users class="size-4" />
+                    Fetch users
+                </Button>
+                <Button @click="openFetch('time')">
+                    <RefreshCw class="size-4" />
+                    Fetch time
+                </Button>
+            </div>
         </div>
 
         <FetchProgressDialog
             v-model:open="fetchOpen"
-            mode="time"
+            :mode="fetchMode"
             :devices="targetDevices"
             @finished="onFetchFinished"
         />
@@ -174,25 +181,25 @@ const verifyLabels: Record<string, string> = {
                 <span v-if="row.employee" class="font-medium">
                     {{ row.employee.full_name }}
                 </span>
-                <div v-else class="flex items-center gap-2">
-                    <span v-if="row.device_user_name" class="text-muted-foreground">
-                        {{ row.device_user_name }}
-                    </span>
-                    <Badge
-                        variant="outline"
-                        title="This device user is not linked to an employee record yet"
-                    >
-                        Unmapped
-                    </Badge>
-                </div>
+                <Badge
+                    v-else
+                    variant="outline"
+                    title="This device user is not linked to an employee record yet"
+                >
+                    Unmapped
+                </Badge>
+            </template>
+
+            <template #cell-device_user_name="{ value }">
+                <span v-if="value">{{ value }}</span>
+                <span v-else class="text-muted-foreground">—</span>
             </template>
 
             <template #cell-device_user_id="{ row }">
                 <div class="flex flex-col leading-tight">
-                    <span class="font-mono text-sm">{{ row.device_user_id }}</span>
-                    <span v-if="row.device_user_name" class="text-xs text-muted-foreground">
-                        {{ row.device_user_name }}
-                    </span>
+                    <span class="font-mono text-sm">{{
+                        row.device_user_id
+                    }}</span>
                 </div>
             </template>
 
@@ -206,15 +213,13 @@ const verifyLabels: Record<string, string> = {
             </template>
 
             <template #cell-time="{ row }">
-                <span class="font-mono text-sm">{{ formatTime(row.punched_at) }}</span>
+                <span class="font-mono text-sm">{{
+                    formatTime(row.punched_at)
+                }}</span>
             </template>
 
             <template #cell-status="{ value }">
-                <Badge
-                    v-if="value === 'in'"
-                    variant="default"
-                    class="gap-1"
-                >
+                <Badge v-if="value === 'in'" variant="default" class="gap-1">
                     <LogIn class="size-3" /> In
                 </Badge>
                 <Badge
@@ -228,7 +233,9 @@ const verifyLabels: Record<string, string> = {
             </template>
 
             <template #cell-verify_mode="{ value }">
-                <span v-if="value">{{ verifyLabels[String(value)] ?? value }}</span>
+                <span v-if="value">{{
+                    verifyLabels[String(value)] ?? value
+                }}</span>
                 <span v-else class="text-muted-foreground">—</span>
             </template>
         </DataTable>

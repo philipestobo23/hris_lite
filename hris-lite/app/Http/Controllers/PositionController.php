@@ -7,6 +7,7 @@ use App\Models\Department;
 use App\Models\Position;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -94,7 +95,7 @@ class PositionController extends Controller
     }
 
     /**
-     * @return \Illuminate\Support\Collection<int, Department>
+     * @return Collection<int, Department>
      */
     private function departmentOptions()
     {
